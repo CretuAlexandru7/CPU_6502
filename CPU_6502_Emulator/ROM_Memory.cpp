@@ -69,5 +69,5 @@ void ROM_Mem::onBusRead(uint16_t address)
 
 void ROM_Mem::onBusWrite(uint16_t address, uint8_t data)
 {
-	// nothing
+	// Nothing- Read Only Memory
 }

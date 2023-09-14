@@ -8,7 +8,7 @@ CPU_6502::CPU_6502(Bus* bus)
 	{
 		{"LDA", 0xA9, 2, &CPU_6502::LDA},
 		{"STA", 0x8D, 2, &CPU_6502::STA},
-		{"JSR", 0x20, 2, &CPU_6502::JSR}
+		{"JSR", 0x20, 2, &CPU_6502::JSR},
 		{"DEC", 0xC6, 2, &CPU_6502::DEC},
 		{"JMP", 0x4C, 2, &CPU_6502::JMP},
 		{"RTS", 0x60, 2, &CPU_6502::RTS},
@@ -47,9 +47,10 @@ uint8_t CPU_6502::read(uint16_t temp_address)
 	return this->m_bus->readBus(temp_address);
 }
 
-void CPU_6502::write(uint16_t temp_address, uint8_t temp_data)
+/* 6502 Have different buses for address and data - would use a single function for both */
+void CPU_6502::write(uint16_t address, uint8_t data)
 {
-	return this->m_bus->writeBus(temp_address, temp_data);
+	return this->m_bus->writeBus(address, data);
 }
 
 void CPU_6502::reset()
@@ -155,22 +156,40 @@ uint8_t CPU_6502::LDA()
 uint8_t CPU_6502::STA()
 {
 	/* Store Accumulator at the (next fetched) specific memory address */
-	uint16_t temp_address = 0x0000;
+	uint16_t temp_address;
 	/* Get the highr part of the address */
-	this->m_PC = this->m_PC + 1;
-	temp_address = this->m_PC * 256; /* higher part of the address */
+	temp_address = this->m_bus->readBus(this->m_PC); /* higher part of the address */
 	/* Get the lower part of the address */
 	this->m_PC = this->m_PC + 1;
-	temp_address = temp_address + this->m_PC;
+	/* Address is little endian. This line calculates the DEC value of the address: */
+	temp_address = temp_address + (this->m_bus->readBus(this->m_PC)) * 256;
 
 	/* Write at specific memory address, coresponding data */
 	this->write(temp_address, this->m_REGISTER_A);
+	this->m_PC = this->m_PC + 1;
+
 	return 0;
 }
 
 uint8_t CPU_6502::JSR()
 {
-	std::cout << "JSR";
+	uint16_t temp_address;
+	/* Get the highr part of the address */
+	temp_address = this->m_bus->readBus(this->m_PC); /* higher part of the address */
+	/* Get the lower part of the address */
+	this->m_PC = this->m_PC + 1;
+	/* Address is little endian. This line calculates the DEC value of the address: */
+	temp_address = temp_address + (this->m_bus->readBus(this->m_PC)) * 256;
+	
+	this->m_PC += 1;
+	this->m_SP = STACK_DEFAULT_ADDRESS;
+	this->write(RAM_STARTING_ADDRESS + this->m_SP, (this->m_PC >> 8) & 0x00FF);
+	this->m_SP -= 1;
+	this->write(RAM_STARTING_ADDRESS + this->m_SP, this->m_PC & 0x00FF);
+	this->m_SP -= 1;
+
+	this->m_PC = temp_address;
+
 	return 0;
 }
 
@@ -183,12 +202,22 @@ uint8_t CPU_6502::DEC()
 
 uint8_t CPU_6502::JMP()
 {
-	std::cout << "JMP";
+	uint16_t temp_address = 0x00;
+	temp_address = this->read(this->m_PC);
+	this->m_PC += 1;
+	temp_address = temp_address + this->read(this->m_PC) * 256;
+
+	this->m_PC = temp_address;
+
 	return 0;
 }
 
 uint8_t CPU_6502::RTS()
 {
-	std::cout << "RTS";
+	this->m_SP += 1;
+	this->m_PC = (uint16_t)this->read(RAM_STARTING_ADDRESS + this->m_SP);
+	this->m_SP += 1;
+	this->m_PC |= (uint16_t)this->read(RAM_STARTING_ADDRESS + this->m_SP) << 8;
+
 	return 0;
 }

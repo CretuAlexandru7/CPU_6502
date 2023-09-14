@@ -14,7 +14,7 @@ C6       ; DEC A
 8D 00 01 ; STA $0100
 
 ; Jump (JSR) to label "lbl" (address $800A)
-20 0A 80 ; JSR $800A
+20 77 80 ; JSR $8077
 
 ; Continue after executing subroutine
 
@@ -39,17 +39,18 @@ C6       ; DEC A
 */
 
 #include <iostream>
-#include <conio.h> // For _getch() function (Windows-specific)
 #include "CPU_6502.h"
 #include "ROM_Memory.h"
+#include "RAM_Memory.h"
 
-const std::string DEFAULT_ROM_MEMORY_FILE_PATH = "D:/Desktop/ROM_Memory.txt";
 
 int main()
 {
 	ROM_Mem Main_Rom(DEFAULT_ROM_MEMORY_FILE_PATH);
+	RAM_Mem Main_Ram(DEFAULT_RAM_MEMORY_FILE_PATH);
 	Bus* Main_Bus = Bus::GetInstance();
 	Main_Bus->attachNewPeripheralToBus(&Main_Rom);
+	Main_Bus->attachNewPeripheralToBus(&Main_Ram);
 	CPU_6502* CPU_Emulator = new CPU_6502(Main_Bus);
 
 	/* tested CPU_Emulator->reset(); */

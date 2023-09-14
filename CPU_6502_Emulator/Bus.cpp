@@ -50,15 +50,24 @@ void Bus::notifyPeripheralWrite(uint16_t address, uint8_t data) {
 uint8_t Bus::readBus(uint16_t address)
 {
 	this->notifyPeripheralRead(address);
-	std::cout << std::hex << " " << address << "     r   " << this->m_current_bus_info << std::endl;
+	std::cout << std::hex << std::uppercase
+		<< " " << std::setw(4) << std::right << address
+		<< "     R   "
+		<< std::setw(2) << std::right << std::uppercase << this->m_current_bus_info
+		<< std::endl;
+	
 	return this->m_current_bus_info;
 }
 
-uint8_t Bus::writeBus(temp_address, temp_data)
+void Bus::writeBus(uint16_t address, uint8_t data)
 {
-	this->notifyPeripheralWrite(temp_address);
-	std::cout << std::hex << " " << temp_address << "     w   " << this->m_current_bus_info << std::endl;
-	return this->m_current_bus_info;	
+	this->notifyPeripheralWrite(address, data);
+	this->m_current_bus_info = data;
+	std::cout << std::hex
+		<< " " << std::setw(4) << std::right << address
+		<< "     W   "
+		<< std::setw(2) << std::right << std::uppercase << this->m_current_bus_info
+		<< std::endl;		
 }
 
 

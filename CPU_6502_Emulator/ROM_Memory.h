@@ -5,8 +5,9 @@
 #include "Bus.h"
 #include "Observer.h"
 
+const std::string DEFAULT_ROM_MEMORY_FILE_PATH = "D:/Desktop/ROM_Memory.txt";
+
 class Bus;
-const uint16_t NO_OPCODE = 0xEA;
 
 /* Using a python script we will make a raw file which will mimic the ROM memory (~32kb of memory) */
 class ROM_Mem : public Observer
@@ -16,6 +17,7 @@ public:
 	~ROM_Mem();
 
 	void onBusRead(uint16_t address);
+	/* Read Only Memory - don't need this function to be implemented */
 	void onBusWrite(uint16_t address, uint8_t data);
 
 private:

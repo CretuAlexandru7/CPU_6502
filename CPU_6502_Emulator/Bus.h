@@ -2,9 +2,11 @@
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <iomanip> // for setw
 #include "CPU_6502.h"
 #include "Observer.h"
 
+const uint16_t NO_OPCODE = 0xEA;
 
 class Bus
 {

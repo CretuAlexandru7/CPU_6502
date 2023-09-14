@@ -9,8 +9,9 @@
 class Bus;
 
 static const uint8_t HEX_INCREMENT = 16;
-static uint16_t STACK_DEFAULT_ADDRESS = 0xFD;
-static uint16_t DEFAULT_RESET_VECTOR_ADDRESS = 0xFFFC; /* First PC address to be read after reset */
+static const uint16_t RAM_STARTING_ADDRESS = 0x100;
+static const uint16_t STACK_DEFAULT_ADDRESS = 0xFD;
+static const uint16_t DEFAULT_RESET_VECTOR_ADDRESS = 0xFFFC; /* First PC address to be read after reset */
 
 class CPU_6502
 {
@@ -23,7 +24,7 @@ public:
 	/* CPU sends to the Bus an address (16 bits) and receives data (8 bits) */
 	uint8_t read(uint16_t a);
 	/* Cpu sends to the Bus some data and a specific address where to store it */
-	void write(uint16_t a, uint8_t d);
+	void write(uint16_t address, uint8_t data);
 	/* Reset function used to get the CPU in the initial state */
 	void reset();
 	/* Simulate the hardware clock sequence */
